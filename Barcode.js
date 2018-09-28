@@ -35,47 +35,59 @@ export default class Barcode extends Component {
 
     static propTypes = {
         ...View.propTypes,
-        onBarCodeRead: PropTypes.func.isRequired,
-        barCodeTypes: PropTypes.array,
-        scannerRectWidth: PropTypes.number,
-        scannerRectHeight: PropTypes.number,
-        scannerRectTop: PropTypes.number,
-        scannerRectLeft: PropTypes.number,
-        scannerLineInterval: PropTypes.number,
-        scannerRectCornerColor: PropTypes.string,
-    }
+    onBarCodeRead: PropTypes.func.isRequired,
+    onAuthorized: PropTypes.func,
+    barCodeTypes: PropTypes.array,
+    scannerRectWidth: PropTypes.number,
+    scannerRectHeight: PropTypes.number,
+    scannerRectTop: PropTypes.number,
+    scannerRectLeft: PropTypes.number,
+    scannerLineInterval: PropTypes.number,
+    scannerRectCornerColor: PropTypes.string,
+}
 
-    render() {
-        return (
-            <NativeBarCode
-                {...this.props}
-            />
-        )
-    }
+render() {
+    return (
+        <NativeBarCode
+    {...this.props}
+/>
+)
+}
 
-    componentDidMount() {
-        AppState.addEventListener('change', this._handleAppStateChange);
-    }
-    componentWillUnmount() {
-        AppState.removeEventListener('change', this._handleAppStateChange);
-    }
+componentDidMount() {
+    this.authorizedIOS(this.props.onAuthorized);
+    AppState.addEventListener('change', this._handleAppStateChange);
+}
+componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+}
 
-    startScan() {
-        BarcodeManager.startSession()
+authorizedIOS(onAuthorized) {
+    if(Platform.OS !== 'ios') return;
+    BarcodeManager.authorized((error, result) => {
+        console.log('auth', result);
+    if(onAuthorized) {
+        onAuthorized(result);
     }
+});
+}
 
-    stopScan() {
-        BarcodeManager.stopSession()
-    }
+startScan() {
+    BarcodeManager.startSession()
+}
 
-    _handleAppStateChange = (currentAppState) => {
-        if(currentAppState !== 'active' ) {
-            this.stopScan()
-        }
-        else {
-            this.startScan()
-        }
+stopScan() {
+    BarcodeManager.stopSession()
+}
+
+_handleAppStateChange = (currentAppState) => {
+    if(currentAppState !== 'active' ) {
+        this.stopScan()
     }
+    else {
+        this.startScan()
+    }
+}
 }
 
 const NativeBarCode = requireNativeComponent(Platform.OS == 'ios' ? 'RCTBarcode' : 'CaptureView', Barcode)

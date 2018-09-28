@@ -16,19 +16,17 @@
 
 - (id)initWithManager:(RCTBarcodeManager*)manager
 {
-    
     if ((self = [super init])) {
+        [manager initializeCaptureSessionInput:AVMediaTypeVideo];
+        [manager startSession];
         self.manager = manager;
-        [self.manager initializeCaptureSessionInput:AVMediaTypeVideo];
-        [self.manager startSession];
     }
     return self;
-
 }
 
 - (void)drawRect:(CGRect)rect {
-//    NSLog(@"drawRect--------------");
-
+    //    NSLog(@"drawRect--------------");
+    
     [super drawRect:rect];
     
     [self updateLayout];
@@ -37,7 +35,7 @@
 
 - (void)layoutSubviews
 {
-//    NSLog(@"layoutSubviews...");
+    //    NSLog(@"layoutSubviews...");
     
     [super layoutSubviews];
     self.manager.previewLayer.frame = self.bounds;
@@ -50,7 +48,7 @@
 
 - (void)removeFromSuperview
 {
-//    NSLog(@"removeFromSuperview...");
+    //    NSLog(@"removeFromSuperview...");
     
     [self.manager endSession];
     [super removeFromSuperview];
@@ -59,7 +57,7 @@
 
 - (void)updateLayout{
     
-//    NSLog(@"updateLayout...");
+    //    NSLog(@"updateLayout...");
     
     int scannerRectWidth = self.scannerRectWidth;//300;
     int scannerRectHeight = self.scannerRectHeight;//300;
@@ -67,9 +65,9 @@
     CGRect cameraRect = self.bounds;
     //中间的矩形框
     self.scannerRect = CGRectMake( (cameraRect.size.width - scannerRectWidth) / 2, (cameraRect.size.height - scannerRectHeight) / 2, scannerRectWidth, scannerRectHeight);
-
+    
     RectView *view = [[RectView alloc] initWithScannerRect:self.scannerRect frame:self.bounds scannerRectCornerColor:self.scannerRectCornerColor];
-//    RectView *view = [[RectView alloc] initWithFrame:self.bounds];
+    //    RectView *view = [[RectView alloc] initWithFrame:self.bounds];
     
     view.backgroundColor = [UIColor clearColor];
     
@@ -78,7 +76,7 @@
     [self addScanLine:self.scannerRect];
     
     if (self.scanLineTimer == nil) {
-//        [self moveUpAndDownLine];
+        //        [self moveUpAndDownLine];
         [self createTimer];
     }
 }
@@ -102,41 +100,41 @@
 }
 #pragma mark 画扫描线
 - (void)addScanLine:(CGRect)rect{
-//    self.scanLine = [[LineView alloc] initWithFrame:CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, 1.25)];
+    //    self.scanLine = [[LineView alloc] initWithFrame:CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, 1.25)];
     self.scanLine = [[LineView alloc] initWithScannerLineColor:self.scannerRectCornerColor frame:CGRectMake(rect.origin.x, rect.origin.y, rect.size.width, 1.25)];
     
     self.scanLine.backgroundColor = [UIColor clearColor];
-
+    
     [self addSubview:self.scanLine];
 }
 //#pragma mark 画框的四个角
 //- (void)addCornerLineWithContext:(CGContextRef)ctx rect:(CGRect)rect{
-//    
+//
 //    UIColor *cornerLineColor = [UIColor redColor];
-//    
+//
 //    //画四个边角
 //    CGContextSetLineWidth(ctx, 2);
 //    [self setStrokeColor:cornerLineColor withContext:ctx];
-//    
+//
 //    //左上角
 //    CGPoint poinsTopLeftA[] = {
 //        CGPointMake(rect.origin.x+0.7, rect.origin.y),
 //        CGPointMake(rect.origin.x+0.7 , rect.origin.y + 15)
 //    };
-//    
+//
 //    CGPoint poinsTopLeftB[] = {CGPointMake(rect.origin.x, rect.origin.y +0.7),CGPointMake(rect.origin.x + 15, rect.origin.y+0.7)};
 //    [self addLine:poinsTopLeftA pointB:poinsTopLeftB ctx:ctx];
-//    
+//
 //    //左下角
 //    CGPoint poinsBottomLeftA[] = {CGPointMake(rect.origin.x+ 0.7, rect.origin.y + rect.size.height - 15),CGPointMake(rect.origin.x +0.7,rect.origin.y + rect.size.height)};
 //    CGPoint poinsBottomLeftB[] = {CGPointMake(rect.origin.x , rect.origin.y + rect.size.height - 0.7) ,CGPointMake(rect.origin.x+0.7 +15, rect.origin.y + rect.size.height - 0.7)};
 //    [self addLine:poinsBottomLeftA pointB:poinsBottomLeftB ctx:ctx];
-//    
+//
 //    //右上角
 //    CGPoint poinsTopRightA[] = {CGPointMake(rect.origin.x+ rect.size.width - 15, rect.origin.y+0.7),CGPointMake(rect.origin.x + rect.size.width,rect.origin.y +0.7 )};
 //    CGPoint poinsTopRightB[] = {CGPointMake(rect.origin.x+ rect.size.width-0.7, rect.origin.y),CGPointMake(rect.origin.x + rect.size.width-0.7,rect.origin.y + 15 +0.7 )};
 //    [self addLine:poinsTopRightA pointB:poinsTopRightB ctx:ctx];
-//    
+//
 //    CGPoint poinsBottomRightA[] = {CGPointMake(rect.origin.x+ rect.size.width -0.7 , rect.origin.y+rect.size.height+ -15),CGPointMake(rect.origin.x-0.7 + rect.size.width,rect.origin.y +rect.size.height )};
 //    CGPoint poinsBottomRightB[] = {CGPointMake(rect.origin.x+ rect.size.width - 15 , rect.origin.y + rect.size.height-0.7),CGPointMake(rect.origin.x + rect.size.width,rect.origin.y + rect.size.height - 0.7 )};
 //    [self addLine:poinsBottomRightA pointB:poinsBottomRightB ctx:ctx];
@@ -159,7 +157,7 @@
 }
 #pragma mark 移动扫描线
 - (void)moveUpAndDownLine {
-//    NSLog(@"moveUpAndDownLine");
+    //    NSLog(@"moveUpAndDownLine");
     
     CGRect readerFrame = self.frame;
     CGSize viewFinderSize = self.scannerRect.size;

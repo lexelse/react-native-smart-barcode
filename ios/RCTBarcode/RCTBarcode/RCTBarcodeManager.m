@@ -6,6 +6,9 @@
 
 @interface RCTBarcodeManager ()
 
+// 权限
+@property (nonatomic, assign) BOOL auth;
+
 @end
 
 @implementation RCTBarcodeManager
@@ -27,7 +30,7 @@ RCT_EXPORT_VIEW_PROPERTY(scannerRectCornerColor, NSString)
 RCT_EXPORT_VIEW_PROPERTY(onBarCodeRead, RCTBubblingEventBlock)
 
 RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTBarcode) {
-//    NSLog(@"custom barCodeTypes -> %@", self.barCodeTypes);
+    //    NSLog(@"custom barCodeTypes -> %@", self.barCodeTypes);
     self.barCodeTypes = [RCTConvert NSArray:json];
 }
 
@@ -36,8 +39,8 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTBarcode) {
     self.session = [[AVCaptureSession alloc]init];
 #if !(TARGET_IPHONE_SIMULATOR)
     self.previewLayer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
-//    self.previewLayer.needsDisplayOnBoundsChange = YES;
-    #endif
+    //    self.previewLayer.needsDisplayOnBoundsChange = YES;
+#endif
     
     if(!self.barcode){
         self.barcode = [[RCTBarcode alloc] initWithManager:self];
@@ -57,20 +60,27 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTBarcode) {
 - (id)init {
     if ((self = [super init])) {
         self.sessionQueue = dispatch_queue_create("barCodeManagerQueue", DISPATCH_QUEUE_SERIAL);
+        self.auth = [self checkAVAuthorization];
     }
     return self;
 }
 
+- (BOOL)checkAVAuthorization
+{
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    return (status == AVAuthorizationStatusAuthorized) || (status == AVAuthorizationStatusNotDetermined);
+}
+
 - (void)initializeCaptureSessionInput:(NSString *)type {
-    
-//    NSLog(@"initializeCaptureSessionInput...");
+    // 首先判断是否有权限
+    if(!self.auth) return;
     
     dispatch_async(self.sessionQueue, ^{
-    
+        
         [self.session beginConfiguration];
         
         NSError *error = nil;
-
+        
         AVCaptureDevice *captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
         
         if (captureDevice == nil) {
@@ -80,63 +90,74 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTBarcode) {
         AVCaptureDeviceInput *captureDeviceInput = [AVCaptureDeviceInput deviceInputWithDevice:captureDevice error:&error];
         
         if (error || captureDeviceInput == nil) {
-//            NSLog(@"%@", error);
+            //            NSLog(@"%@", error);
             return;
         }
         
         [self.session removeInput:self.videoCaptureDeviceInput];
-
+        
         
         if ([self.session canAddInput:captureDeviceInput]) {
             
-//            NSLog(@"self.session canAddInput:captureDeviceInput...");
+            //            NSLog(@"self.session canAddInput:captureDeviceInput...");
             
             [self.session addInput:captureDeviceInput];
             
             self.videoCaptureDeviceInput = captureDeviceInput;
             
-//            self.metadataOutput.rectOfInterest = self.barcode.bounds;
-//            [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
-//            [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
-
+            //            self.metadataOutput.rectOfInterest = self.barcode.bounds;
+            //            [self.metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
+            //            [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
+            
         }
         
         [self.session commitConfiguration];
     });
 }
 
+RCT_EXPORT_METHOD(authorized:(RCTResponseSenderBlock)block) {
+#if TARGET_IPHONE_SIMULATOR
+    block(@[[NSNull null], @(false)]);
+#else
+    NSLog(@"auth: %d", self.auth);
+    if(!self.auth)
+    block(@[[NSNull null], @(self.auth)]);
+#endif
+}
+
 RCT_EXPORT_METHOD(startSession) {
-    #if TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
     return;
-    #endif
+#endif
+    if(!self.auth) return;
     dispatch_async(self.sessionQueue, ^{
         
-//        NSLog(@"self.metadataOutput = %@", self.metadataOutput);
+        //        NSLog(@"self.metadataOutput = %@", self.metadataOutput);
         
         if(self.metadataOutput == nil) {
             
-//            NSLog(@"self.metadataOutput = %@", self.metadataOutput);
+            //            NSLog(@"self.metadataOutput = %@", self.metadataOutput);
             
             AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
             self.metadataOutput = metadataOutput;
-        
+            
             if ([self.session canAddOutput:self.metadataOutput]) {
                 [self.metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
                 [self.session addOutput:self.metadataOutput];
-//                  [metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
+                //                  [metadataOutput setMetadataObjectTypes:self.metadataOutput.availableMetadataObjectTypes];
                 [self.metadataOutput setMetadataObjectTypes:self.barCodeTypes];
             }
             
-//            [metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code,AVMetadataObjectTypeCode128Code,AVMetadataObjectTypeQRCode]];
+            //            [metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code,AVMetadataObjectTypeCode128Code,AVMetadataObjectTypeQRCode]];
             
             //            [[NSNotificationCenter defaultCenter] addObserverForName:AVCaptureInputPortFormatDescriptionDidChangeNotification
             //                        object:nil
             //                        queue:[NSOperationQueue currentQueue]
             //                        usingBlock: ^(NSNotification *_Nonnull note) {
-//                                    metadataOutput.rectOfInterest = [self.previewLayer metadataOutputRectOfInterestForRect:CGRectMake(80, 80, 160, 160)];
+            //                                    metadataOutput.rectOfInterest = [self.previewLayer metadataOutputRectOfInterestForRect:CGRectMake(80, 80, 160, 160)];
             //                                                          }];
             
-//            NSLog(@"startSession set metadataOutput...");
+            //            NSLog(@"startSession set metadataOutput...");
         }
         
         [self.session startRunning];
@@ -150,9 +171,10 @@ RCT_EXPORT_METHOD(startSession) {
 }
 
 RCT_EXPORT_METHOD(stopSession) {
-    #if TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
     return;
-    #endif
+#endif
+    if(!self.auth) return;
     dispatch_async(self.sessionQueue, ^{
         
         [self.session commitConfiguration];
@@ -164,17 +186,17 @@ RCT_EXPORT_METHOD(stopSession) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0),
                        dispatch_get_main_queue(),
                        ^{
-//                           NSLog(@"self.barcode.scanLine remove animation");
+                           //                           NSLog(@"self.barcode.scanLine remove animation");
                            [self.barcode.scanLine.layer removeAllAnimations];
                        });
-
+        
     });
 }
 
 - (void)endSession {
-    #if TARGET_IPHONE_SIMULATOR
+#if TARGET_IPHONE_SIMULATOR
     return;
-    #endif
+#endif
     dispatch_async(self.sessionQueue, ^{
         self.barcode = nil;
         [self.previewLayer removeFromSuperlayer];
@@ -185,7 +207,7 @@ RCT_EXPORT_METHOD(stopSession) {
         for(AVCaptureInput *input in self.session.inputs) {
             [self.session removeInput:input];
         }
-
+        
         for(AVCaptureOutput *output in self.session.outputs) {
             [self.session removeOutput:output];
         }
@@ -198,25 +220,25 @@ RCT_EXPORT_METHOD(stopSession) {
 //    return;
 //#endif
 //    dispatch_async(self.sessionQueue, ^{
-//        
+//
 //        AVCaptureMetadataOutput *metadataOutput = [[AVCaptureMetadataOutput alloc] init];
 //        if ([self.session canAddOutput:metadataOutput]) {
 //            [metadataOutput setMetadataObjectsDelegate:self queue:self.sessionQueue];
 //            [self.session addOutput:metadataOutput];
 ////            [metadataOutput setMetadataObjectTypes:self.barCodeTypes];
 //            [metadataOutput setMetadataObjectTypes:@[AVMetadataObjectTypeEAN13Code,AVMetadataObjectTypeEAN8Code,AVMetadataObjectTypeCode128Code,AVMetadataObjectTypeQRCode]];
-//            
+//
 ////            [[NSNotificationCenter defaultCenter] addObserverForName:AVCaptureInputPortFormatDescriptionDidChangeNotification
 ////                        object:nil
 ////                        queue:[NSOperationQueue currentQueue]
 ////                        usingBlock: ^(NSNotification *_Nonnull note) {
 ////                        metadataOutput.rectOfInterest = [self.previewLayer metadataOutputRectOfInterestForRect:CGRectMake(80, 80, 160, 160)];
 ////                                                          }];
-//            
+//
 //            self.metadataOutput = metadataOutput;
 //            NSLog(@"startSession set metadataOutput...");
 //        }
-//        
+//
 //        [self.session startRunning];
 //    });
 //}
@@ -233,7 +255,7 @@ RCT_EXPORT_METHOD(stopSession) {
 //        for(AVCaptureInput *input in self.session.inputs) {
 //            [self.session removeInput:input];
 //        }
-//        
+//
 //        for(AVCaptureOutput *output in self.session.outputs) {
 //            [self.session removeOutput:output];
 //        }
@@ -241,10 +263,10 @@ RCT_EXPORT_METHOD(stopSession) {
 //}
 
 - (void)captureOutput:(AVCaptureOutput *)captureOutput didOutputMetadataObjects:(NSArray *)metadataObjects fromConnection:(AVCaptureConnection *)connection {
-//    NSLog(@"captureOutput!!!");
+    //    NSLog(@"captureOutput!!!");
     for (AVMetadataMachineReadableCodeObject *metadata in metadataObjects) {
-//        NSLog(@"AVMetadataMachineReadableCodeObject!!!");
-//        NSLog(@"type = %@, data = %@", metadata.type, metadata.stringValue);
+        //        NSLog(@"AVMetadataMachineReadableCodeObject!!!");
+        //        NSLog(@"type = %@, data = %@", metadata.type, metadata.stringValue);
         for (id barcodeType in self.barCodeTypes) {
             if ([metadata.type isEqualToString:barcodeType]) {
                 if (!self.barcode.onBarCodeRead) {
@@ -253,13 +275,13 @@ RCT_EXPORT_METHOD(stopSession) {
                 
                 AudioServicesPlaySystemSound(self.beep_sound_id);
                 
-//                NSLog(@"type = %@, data = %@", metadata.type, metadata.stringValue);
+                //                NSLog(@"type = %@, data = %@", metadata.type, metadata.stringValue);
                 self.barcode.onBarCodeRead(@{
-                                              @"data": @{
-                                                        @"type": metadata.type,
-                                                        @"code": metadata.stringValue,
-                                              },
-                                            });
+                                             @"data": @{
+                                                     @"type": metadata.type,
+                                                     @"code": metadata.stringValue,
+                                                     },
+                                             });
             }
         }
     }
@@ -272,7 +294,7 @@ RCT_EXPORT_METHOD(stopSession) {
 - (NSDictionary *)constantsToExport
 {
     return @{
-                @"barCodeTypes": @{
+             @"barCodeTypes": @{
                      @"upce": AVMetadataObjectTypeUPCECode,
                      @"code39": AVMetadataObjectTypeCode39Code,
                      @"code39mod43": AVMetadataObjectTypeCode39Mod43Code,
@@ -283,17 +305,17 @@ RCT_EXPORT_METHOD(stopSession) {
                      @"pdf417": AVMetadataObjectTypePDF417Code,
                      @"qr": AVMetadataObjectTypeQRCode,
                      @"aztec": AVMetadataObjectTypeAztecCode
-                     #ifdef AVMetadataObjectTypeInterleaved2of5Code
+#ifdef AVMetadataObjectTypeInterleaved2of5Code
                      ,@"interleaved2of5": AVMetadataObjectTypeInterleaved2of5Code
-                     # endif
-                     #ifdef AVMetadataObjectTypeITF14Code
+# endif
+#ifdef AVMetadataObjectTypeITF14Code
                      ,@"itf14": AVMetadataObjectTypeITF14Code
-                     # endif
-                     #ifdef AVMetadataObjectTypeDataMatrixCode
+# endif
+#ifdef AVMetadataObjectTypeDataMatrixCode
                      ,@"datamatrix": AVMetadataObjectTypeDataMatrixCode
-                     # endif
-                }
-            };
+# endif
+                     }
+             };
 }
 
 

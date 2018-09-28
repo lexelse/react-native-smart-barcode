@@ -17,6 +17,7 @@
 
 - (void)initializeCaptureSessionInput:(NSString*)type;
 
+- (void)authorized:(RCTResponseSenderBlock)block;
 - (void)startSession;
 - (void)stopSession;
 - (void)endSession;
