@@ -228,3 +228,10 @@ scannerRectCornerColor | string | Yes      | `#09BB0D` | determines the color of
 [1]: https://github.com/zxing/zxing
 [2]: http://cyqresig.github.io/img/react-native-smart-barcode-preview-ios-v1.0.0.gif
 [3]: http://cyqresig.github.io/img/react-native-smart-barcode-preview-android-v1.0.0.gif
+
+
+## 更新履历
+
+tag                    | time        | Description
+---------------------- | ----------- | -----------
+2.0.0                  | 2018-09-28  | 修复iOS8以后版本，关闭相机权限后崩溃问题
