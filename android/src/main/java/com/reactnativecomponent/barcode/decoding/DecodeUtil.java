@@ -41,6 +41,11 @@ public class DecodeUtil {
         return Bitmap.createScaledBitmap(weak.get(), (int)(width/scale), (int)(height/scale), true);
     }
 
+    /**
+     * 识别二维码文件信息
+     * @param path 二维码文件地址
+     * @return 二维码信息
+     */
     public static String getStringFromQRCode(String path) {
         String httpString = null;
 

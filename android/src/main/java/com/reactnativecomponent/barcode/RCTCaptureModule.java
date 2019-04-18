@@ -134,11 +134,7 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
             new Thread(new Runnable() {
                 public void run() {
                     try {
-                    String s = Environment.getExternalStorageDirectory()
-                            .getAbsolutePath() + "/" + "IMG_20161011_170552.jpg";
-                    //不加这个分号则不能自动添加代码
-
-                    String ResultStr = DecodeUtil.getStringFromQRCode(s);
+                    String ResultStr = DecodeUtil.getStringFromQRCode(path);
                         successCallback.invoke(ResultStr);
 
                     } catch (Exception e) {
