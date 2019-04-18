@@ -138,7 +138,7 @@ RCT_EXPORT_METHOD(readQRCodeFromPath:(NSString *)path errorBlock:(RCTResponseErr
         if (image == nil) {
             // 没有找到图片
             dispatch_async(dispatch_get_main_queue(), ^{
-                NSError *error = [NSError errorWithDomain:@"com.foresealife.learnstarer" code:-9999 userInfo:@{NSLocalizedDescriptionKey: @"错误的图片地址"}];
+                NSError *error = [NSError errorWithDomain:@"com.foresealife.learnstarer" code:-9999 userInfo:@{NSLocalizedDescriptionKey: @"没有找到图片"}];
                 errorBlock(error);
             });
             return;
