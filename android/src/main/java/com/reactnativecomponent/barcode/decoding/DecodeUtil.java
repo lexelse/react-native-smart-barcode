@@ -3,28 +3,35 @@ package com.reactnativecomponent.barcode.decoding;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.DecodeHintType;
+import com.google.zxing.NotFoundException;
 import com.google.zxing.PlanarYUVLuminanceSource;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 
 
 public class DecodeUtil {
 
-    public static Bitmap convertToBitmap(String path) {
+    public static Bitmap convertToBitmap(String path) throws FileNotFoundException {
         BitmapFactory.Options opts = new BitmapFactory.Options();
         // 设置为ture只获取图片大小
         opts.inJustDecodeBounds = true;
         opts.inPreferredConfig = Bitmap.Config.RGB_565;
         // 返回为空
         BitmapFactory.decodeFile(path, opts);
+        if (opts.outWidth <= 0 || opts.outHeight <= 0) {
+            throw new FileNotFoundException();
+        }
+
         int width = opts.outWidth;
         int height = opts.outHeight;
       /*  float scaleWidth = 0.f, scaleHeight = 0.f;
@@ -36,20 +43,22 @@ public class DecodeUtil {
         opts.inJustDecodeBounds = false;
 //        float scale = Math.max(scaleWidth, scaleHeight);
         float scale = 1.5f;
-        opts.inSampleSize = (int)scale;
+        opts.inSampleSize = (int) scale;
         WeakReference<Bitmap> weak = new WeakReference<Bitmap>(BitmapFactory.decodeFile(path, opts));
-        return Bitmap.createScaledBitmap(weak.get(), (int)(width/scale), (int)(height/scale), true);
+        return Bitmap.createScaledBitmap(weak.get(), (int) (width / scale), (int) (height / scale), true);
     }
 
     /**
      * 识别二维码文件信息
+     *
      * @param path 二维码文件地址
      * @return 二维码信息
      */
-    public static String getStringFromQRCode(String path) {
+    public static String getStringFromQRCode(String path) throws FileNotFoundException, NotFoundException {
         String httpString = null;
 
         Bitmap bmp = convertToBitmap(path);
+
         byte[] data = getYUV420sp(bmp.getWidth(), bmp.getHeight(), bmp);
         // 处理
         try {
@@ -65,10 +74,12 @@ public class DecodeUtil {
                     bmp.getHeight(),
                     false);
             BinaryBitmap bitmap1 = new BinaryBitmap(new HybridBinarizer(source));
-            QRCodeReader reader2= new QRCodeReader();
+            QRCodeReader reader2 = new QRCodeReader();
             Result result = reader2.decode(bitmap1, hints);
 
             httpString = result.getText();
+        } catch (NotFoundException e) {
+            throw e;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -106,10 +117,8 @@ public class DecodeUtil {
     /**
      * RGB转YUV420sp
      *
-     * @param yuv420sp
-     *            inputWidth * inputHeight * 3 / 2
-     * @param argb
-     *            inputWidth * inputHeight
+     * @param yuv420sp inputWidth * inputHeight * 3 / 2
+     * @param argb     inputWidth * inputHeight
      * @param width
      * @param height
      */

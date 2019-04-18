@@ -74,5 +74,7 @@ export default BarcodeView;
 export const getQRCodeFromImage = (path, onFail, onSuccess) => {
   // android 需要调整路径, 移除无法识别的部分
   const imagePath = path.replace("file:///", "/");
-  NativeModules.CaptureModule.DecodeFromPath(imagePath, onFail, onSuccess);
+  // 组装统一返回error
+  const onFailMessage = (message) => onFail(new Error(message));
+  NativeModules.CaptureModule.DecodeFromPath(imagePath, onFailMessage, onSuccess);
 };
