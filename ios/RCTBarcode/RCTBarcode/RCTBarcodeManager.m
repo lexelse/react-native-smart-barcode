@@ -1,13 +1,15 @@
 
 #import "RCTBarcode.h"
 #import "RCTBarcodeManager.h"
-
-
+#import <React/RCTUtils.h>
+#import "UIImage+Util.h"
 
 @interface RCTBarcodeManager ()
 
 // 权限
 @property (nonatomic, assign) BOOL auth;
+
+@property (nonatomic, strong) CIDetector *detector;
 
 @end
 
@@ -121,8 +123,44 @@ RCT_EXPORT_METHOD(authorized:(RCTResponseSenderBlock)block) {
 #else
     NSLog(@"auth: %d", self.auth);
     if(!self.auth)
-    block(@[[NSNull null], @(self.auth)]);
+        block(@[[NSNull null], @(self.auth)]);
 #endif
+}
+
+RCT_EXPORT_METHOD(readQRCodeFromPath:(NSString *)path errorBlock:(RCTResponseErrorBlock)errorBlock successBlock:(RCTResponseSenderBlock)successBlock) {
+    if (self.detector == nil) {
+        self.detector =  [CIDetector detectorOfType:CIDetectorTypeQRCode context:nil options:@{ CIDetectorAccuracy : CIDetectorAccuracyHigh }];
+    }
+    
+    dispatch_async(dispatch_queue_create("barcode_compress_background_queue", 0), ^{
+        //1. 读取图片文件
+        UIImage *image = [UIImage imageWithContentsOfFile: path];
+        if (image == nil) {
+            // 没有找到图片
+            dispatch_async(dispatch_get_main_queue(), ^{
+                NSError *error = [NSError errorWithDomain:@"com.foresealife.learnstarer" code:-9999 userInfo:@{NSLocalizedDescriptionKey: @"错误的图片地址"}];
+                errorBlock(error);
+            });
+            return;
+        }
+        
+        // 压缩图片提高效率
+        image = [image compress];
+        CGImageRef ref = image.CGImage;
+        //2. 扫描获取的特征组
+        NSArray *features = [self.detector featuresInImage:[CIImage imageWithCGImage:ref]];
+        //3. 获取扫描结果
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (features.count >= 1) {
+                CIQRCodeFeature *feature = [features objectAtIndex: 0];
+                successBlock(@[feature.messageString]);
+            }
+            else {
+                NSError *error = [NSError errorWithDomain:@"com.foresealife.learnstarer" code:-9999 userInfo:@{NSLocalizedDescriptionKey: @"无法识别图片中的二维码"}];
+                errorBlock(error);
+            }
+        });
+    });
 }
 
 RCT_EXPORT_METHOD(startSession) {

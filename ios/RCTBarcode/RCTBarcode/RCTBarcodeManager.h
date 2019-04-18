@@ -18,6 +18,7 @@
 - (void)initializeCaptureSessionInput:(NSString*)type;
 
 - (void)authorized:(RCTResponseSenderBlock)block;
+- (void)readQRCodeFromPath:(NSString *)path errorBlock:(RCTResponseErrorBlock)errorBlock successBlock:(RCTResponseSenderBlock)successBlock;
 - (void)startSession;
 - (void)stopSession;
 - (void)endSession;

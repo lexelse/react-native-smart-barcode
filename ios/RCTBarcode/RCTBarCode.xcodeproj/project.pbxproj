@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		39CF7E8222672CCD00DB94DE /* UIImage+Util.m in Sources */ = {isa = PBXBuildFile; fileRef = 39CF7E8122672CCD00DB94DE /* UIImage+Util.m */; };
 		9F0396621DB5F98F00393F03 /* UIColor+Hex.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F0396611DB5F98F00393F03 /* UIColor+Hex.m */; };
 		9F924BA81DAE17A5002340CC /* RectView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F924BA71DAE17A5002340CC /* RectView.m */; };
 		9FCCD75D1DAC8DA800025BFD /* RCTBarcode.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FCCD75C1DAC8DA800025BFD /* RCTBarcode.m */; };
@@ -29,6 +30,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		39CF7E8022672CCD00DB94DE /* UIImage+Util.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIImage+Util.h"; sourceTree = "<group>"; };
+		39CF7E8122672CCD00DB94DE /* UIImage+Util.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIImage+Util.m"; sourceTree = "<group>"; };
 		9F0396601DB5F98F00393F03 /* UIColor+Hex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+Hex.h"; sourceTree = "<group>"; };
 		9F0396611DB5F98F00393F03 /* UIColor+Hex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+Hex.m"; sourceTree = "<group>"; };
 		9F924BA61DAE17A5002340CC /* RectView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RectView.h; sourceTree = "<group>"; };
@@ -82,6 +85,8 @@
 				9F924BA71DAE17A5002340CC /* RectView.m */,
 				9F0396601DB5F98F00393F03 /* UIColor+Hex.h */,
 				9F0396611DB5F98F00393F03 /* UIColor+Hex.m */,
+				39CF7E8022672CCD00DB94DE /* UIImage+Util.h */,
+				39CF7E8122672CCD00DB94DE /* UIImage+Util.m */,
 			);
 			name = RCTBarCode;
 			path = RCTBarcode;
@@ -149,6 +154,7 @@
 				9FCCD7C01DACCCD500025BFD /* RCTBarcodeManager.m in Sources */,
 				9F924BA81DAE17A5002340CC /* RectView.m in Sources */,
 				9FCCD7931DACC77A00025BFD /* LineView.m in Sources */,
+				39CF7E8222672CCD00DB94DE /* UIImage+Util.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
