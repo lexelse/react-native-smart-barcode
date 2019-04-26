@@ -34,7 +34,7 @@ public class DecodeUtil {
             Hashtable<DecodeHintType, Object> hints = new Hashtable<>();
             hints.put(DecodeHintType.CHARACTER_SET, "utf-8");
             hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
-            hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
+            // hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
             hints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.QR_CODE);
             PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data,
                     bmp.getWidth(),
