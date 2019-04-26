@@ -2,8 +2,6 @@ package com.reactnativecomponent.barcode.decoding;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
-import android.util.Log;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.BinaryBitmap;
@@ -14,39 +12,10 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import java.io.FileNotFoundException;
-import java.lang.ref.WeakReference;
 import java.util.Hashtable;
 
 
 public class DecodeUtil {
-
-    public static Bitmap convertToBitmap(String path) throws FileNotFoundException {
-        BitmapFactory.Options opts = new BitmapFactory.Options();
-        // 设置为ture只获取图片大小
-        opts.inJustDecodeBounds = true;
-        opts.inPreferredConfig = Bitmap.Config.RGB_565;
-        // 返回为空
-        BitmapFactory.decodeFile(path, opts);
-        if (opts.outWidth <= 0 || opts.outHeight <= 0) {
-            throw new FileNotFoundException();
-        }
-
-        int width = opts.outWidth;
-        int height = opts.outHeight;
-      /*  float scaleWidth = 0.f, scaleHeight = 0.f;
-        if (width > w || height > h){
-            // 缩放
-            scaleWidth = ((float) width) / w;
-            scaleHeight = ((float) height) / h;
-        }*/
-        opts.inJustDecodeBounds = false;
-//        float scale = Math.max(scaleWidth, scaleHeight);
-        float scale = 1.5f;
-        opts.inSampleSize = (int) scale;
-        WeakReference<Bitmap> weak = new WeakReference<Bitmap>(BitmapFactory.decodeFile(path, opts));
-        return Bitmap.createScaledBitmap(weak.get(), (int) (width / scale), (int) (height / scale), true);
-    }
 
     /**
      * 识别二维码文件信息
@@ -54,17 +23,18 @@ public class DecodeUtil {
      * @param path 二维码文件地址
      * @return 二维码信息
      */
-    public static String getStringFromQRCode(String path) throws FileNotFoundException, NotFoundException {
+    public static String getStringFromQRCode(String path) throws NotFoundException {
         String httpString = null;
 
-        Bitmap bmp = convertToBitmap(path);
+        Bitmap bmp = decodeSampledBitmapFromFile(path, 256, 256);
 
         byte[] data = getYUV420sp(bmp.getWidth(), bmp.getHeight(), bmp);
         // 处理
         try {
-            Hashtable<DecodeHintType, Object> hints = new Hashtable<DecodeHintType, Object>();
-//            hints.put(DecodeHintType.CHARACTER_SET, "utf-8");
+            Hashtable<DecodeHintType, Object> hints = new Hashtable<>();
+            hints.put(DecodeHintType.CHARACTER_SET, "utf-8");
             hints.put(DecodeHintType.TRY_HARDER, Boolean.TRUE);
+            hints.put(DecodeHintType.PURE_BARCODE, Boolean.TRUE);
             hints.put(DecodeHintType.POSSIBLE_FORMATS, BarcodeFormat.QR_CODE);
             PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data,
                     bmp.getWidth(),
@@ -99,7 +69,7 @@ public class DecodeUtil {
      * @param scaled
      * @return
      */
-    public static byte[] getYUV420sp(int inputWidth, int inputHeight,
+    private static byte[] getYUV420sp(int inputWidth, int inputHeight,
                                      Bitmap scaled) {
         int[] argb = new int[inputWidth * inputHeight];
 
@@ -178,5 +148,50 @@ public class DecodeUtil {
                 }
             }
         }
+    }
+
+    /**
+     * 将图片根据压缩比压缩成固定宽高的Bitmap，实际解析的图片大小可能和#reqWidth、#reqHeight不一样。
+     *
+     * @param imgPath 图片地址
+     * @param reqWidth 需要压缩到的宽度
+     * @param reqHeight 需要压缩到的高度
+     * @return Bitmap
+     */
+    public static Bitmap decodeSampledBitmapFromFile(String imgPath, int reqWidth, int reqHeight) {
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(imgPath, options);
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(imgPath, options);
+    }
+
+    /**
+     * 根据给定的宽度和高度动态计算图片压缩比率
+     *
+     * @param options Bitmap配置文件
+     * @param reqWidth 需要压缩到的宽度
+     * @param reqHeight 需要压缩到的高度
+     * @return 压缩比
+     */
+    private static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+        if (height > reqHeight || width > reqWidth) {
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+        return inSampleSize;
     }
 }

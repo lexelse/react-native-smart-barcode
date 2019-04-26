@@ -1,9 +1,6 @@
 package com.reactnativecomponent.barcode;
 
-import android.os.Environment;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.Toast;
 
 import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -13,7 +10,6 @@ import com.google.zxing.BarcodeFormat;
 import com.google.zxing.NotFoundException;
 import com.reactnativecomponent.barcode.decoding.DecodeUtil;
 
-import java.io.FileNotFoundException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,13 +32,6 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
     public String getName() {
         return "CaptureModule";
     }
-
-//    public void sendMsgToRn(String msg) {
-//        //将消息msg发送给RN侧
-//        mContext.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("AndroidToRNMessage", msg);
-//
-//    }
-
 
     @Nullable
     @Override
@@ -84,8 +73,6 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
             getCurrentActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     captureManager.cap.startQR();
-//                    captureManager.cap.startScan();
-//                    Toast.makeText(getCurrentActivity(), "startScan", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -97,9 +84,7 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
         if (captureManager.cap != null) {
             getCurrentActivity().runOnUiThread(new Runnable() {
                 public void run() {
-//                    captureManager.cap.stopQR();
                     captureManager.cap.stopScan();
-//                    Toast.makeText(getCurrentActivity(), "stopScan", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -111,7 +96,6 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
             getCurrentActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     captureManager.cap.CloseFlash();
-//                    Toast.makeText(getCurrentActivity(), "stopFlash", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -123,7 +107,6 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
             getCurrentActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     captureManager.cap.OpenFlash();
-//                    Toast.makeText(getCurrentActivity(), "startFlash", Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -137,12 +120,9 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    String ResultStr = DecodeUtil.getStringFromQRCode(path);
-                    successCallback.invoke(ResultStr);
-                } catch (FileNotFoundException e) {
-                    // 没有找到图片
-                    e.printStackTrace();
-                    errorCallback.invoke("没有找到图片");
+                    String resultStr;
+                    resultStr = DecodeUtil.getStringFromQRCode(path);
+                    successCallback.invoke(resultStr);
                 } catch (NotFoundException e) {
                     // 无法识别图片中的二维码
                     e.printStackTrace();
@@ -153,8 +133,6 @@ public class RCTCaptureModule extends ReactContextBaseJavaModule {
                 }
             }
         }).start();
-//        Toast.makeText(getCurrentActivity(), "DecodeFromPath:"+path, Toast.LENGTH_SHORT).show();
-
     }
 
 
