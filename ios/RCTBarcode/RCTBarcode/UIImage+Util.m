@@ -5,8 +5,12 @@
 //  Created by xukj on 2019/4/17.
 //  Copyright © 2019 react-native-component. All rights reserved.
 //
+//  modify by xukj - 调整压缩比例
+//
 
 #import "UIImage+Util.h"
+
+#define COMPRESS_SCALE 0.5
 
 @implementation UIImage (Util)
 
@@ -15,19 +19,8 @@
     UIImage* bigImage = self;
     float actualHeight = bigImage.size.height;
     float actualWidth = bigImage.size.width;
-    float newWidth =0;
-    float newHeight =0;
-    if(actualWidth > actualHeight) {
-        //宽图
-        newHeight =256.0f;
-        newWidth = actualWidth / actualHeight * newHeight;
-    }
-    else
-    {
-        //长图
-        newWidth =256.0f;
-        newHeight = actualHeight / actualWidth * newWidth;
-    }
+    float newWidth = actualWidth * COMPRESS_SCALE;
+    float newHeight = actualHeight * COMPRESS_SCALE;
     
     CGRect rect =CGRectMake(0.0,0.0, newWidth, newHeight);
     UIGraphicsBeginImageContext(rect.size);
