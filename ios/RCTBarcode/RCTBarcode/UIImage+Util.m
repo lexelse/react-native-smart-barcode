@@ -19,8 +19,14 @@
     UIImage* bigImage = self;
     float actualHeight = bigImage.size.height;
     float actualWidth = bigImage.size.width;
+    
     float newWidth = actualWidth * COMPRESS_SCALE;
     float newHeight = actualHeight * COMPRESS_SCALE;
+    
+    if (newWidth < 256 && newHeight < 256) {
+        newWidth = actualWidth;
+        newHeight = actualHeight;
+    }
     
     CGRect rect =CGRectMake(0.0,0.0, newWidth, newHeight);
     UIGraphicsBeginImageContext(rect.size);
