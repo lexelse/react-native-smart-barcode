@@ -16,7 +16,10 @@
     "barcode",
     "scan"
   ],
-  "author": "xukj",
+  "author": {
+    "name": "xukj",
+    "email": "xuwaer@gmail.com"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/react-native-component/react-native-smart-barcode/issues"

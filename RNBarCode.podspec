@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.homepage     = 'n/a'
   s.authors      = { author => email }
   s.source       = { :git => homepage, :tag => 'v#{version}'}
-  s.source_files = 'RCTBarcode/*.{h,m}'
+  s.source_files = 'ios/RCTBarcode/*.{h,m}'
   s.platform     = :ios, "9.0"
   s.dependency 'React-Core'
 end
