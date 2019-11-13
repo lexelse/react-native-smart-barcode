@@ -50,7 +50,8 @@ RCT_CUSTOM_VIEW_PROPERTY(barCodeTypes, NSArray, RCTBarcode) {
     }
     
     SystemSoundID beep_sound_id;
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"beep" ofType:@"wav"];
+    NSBundle *bundle = [NSBundle bundleForClass:[self class]];
+    NSString *path = [bundle pathForResource:@"beep" ofType:@"wav"];
     if (path) {
         AudioServicesCreateSystemSoundID((__bridge CFURLRef)[NSURL fileURLWithPath:path],&beep_sound_id);
         self.beep_sound_id = beep_sound_id;
