@@ -28,7 +28,7 @@ public class DecodeUtil {
 
         Bitmap bmp = decodeSampledBitmapFromFile(path, 256, 256);
 
-        byte[] data = getYUV420sp(bmp.getWidth(), bmp.getHeight(), bmp);
+        byte[] data = getYUV420sp(bmp);
         // 处理
         try {
             Hashtable<DecodeHintType, Object> hints = new Hashtable<>();
