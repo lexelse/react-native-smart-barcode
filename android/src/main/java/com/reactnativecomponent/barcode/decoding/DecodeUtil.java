@@ -62,35 +62,35 @@ public class DecodeUtil {
 
 
     /**
-     * YUV420sp
+     * 获取颜色YUV420sp编码格式的图片数据
      *
-     * @param inputWidth
-     * @param inputHeight
-     * @param scaled
-     * @return
+     * @param sourceBmp 原始图片数据
+     * @return yuv数据
      */
-    private static byte[] getYUV420sp(int inputWidth, int inputHeight,
-                                     Bitmap scaled) {
-        int[] argb = new int[inputWidth * inputHeight];
-
-        scaled.getPixels(argb, 0, inputWidth, 0, 0, inputWidth, inputHeight);
-
-        byte[] yuv = new byte[inputWidth * inputHeight * 3 / 2];
-
-        encodeYUV420SP(yuv, argb, inputWidth, inputHeight);
-
-        scaled.recycle();
-
-        return yuv;
+    private static byte[] getYUV420sp(Bitmap sourceBmp) {
+        if (null != sourceBmp) {
+            int inputWidth = sourceBmp.getWidth();
+            int inputHeight = sourceBmp.getHeight();
+            int[] argb = new int[inputWidth * inputHeight];
+            sourceBmp.getPixels(argb, 0, inputWidth, 0, 0, inputWidth, inputHeight);
+            byte[] yuv = new byte[inputWidth
+                    * inputHeight
+                    + ((inputWidth % 2 == 0 ? inputWidth : (inputWidth + 1)) * (inputHeight % 2 == 0 ? inputHeight
+                    : (inputHeight + 1))) / 2];
+            encodeYUV420SP(yuv, argb, inputWidth, inputHeight);
+            sourceBmp.recycle();
+            return yuv;
+        }
+        return null;
     }
 
     /**
      * RGB转YUV420sp
      *
-     * @param yuv420sp inputWidth * inputHeight * 3 / 2
-     * @param argb     inputWidth * inputHeight
-     * @param width
-     * @param height
+     * @param yuv420sp 存放yuv420的数组
+     * @param argb     argb数据
+     * @param width    图片大小
+     * @param height   图片大小
      */
     private static void encodeYUV420SP(byte[] yuv420sp, int[] argb, int width,
                                        int height) {
